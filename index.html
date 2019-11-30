@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>CardChecker</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="vue.min.js"></script>
+    </head>
+    <body>
+        
+        <div class="card" id="app">
+
+            <!-- Здесь будет выводиться ЛОГОТИП БАНКА -->
+            <div class="bank">
+                <img v-bind:src="bank">
+            </div>
+
+            <!-- Поле для ввода НОМЕРА КАРТЫ -->
+            <div class="number-container">
+                <input type="text" placeholder="Номер карты" v-model="number" v-bind:class="{ 'input-ok': validStatus, 'input-err': !validStatus }">
+                <div class="status" v-bind:class="{ 'status-ok': validStatus, 'status-err': !validStatus }"></div>
+            </div>
+
+            <!-- Поле для ввода ИМЕНИ ДЕРЖАТЕЛЯ -->
+            <div class="name-container">
+                <input type="text" placeholder="Имя держателя" v-model="name" v-bind:class="{ 'input-ok': validName, 'input-err': !validName }">
+                <div class="status" v-bind:class="{ 'status-ok': validName, 'status-err': !validName }"></div>
+            </div>
+
+            <!-- Логотип ПЛАТЕЖНОЙ СИСТЕМЫ -->
+            <div class="pay-system">
+                <img v-bind:src="paySystem">
+            </div>
+
+        </div>
+        <script>
+
+            'use strict';
+        
+            class Bank {
+                constructor(url, bins) {
+                    this.url = url;
+                    this.bins = bins;
+                }
+            }
+
+            new Vue({
+
+                el: "#app",
+                data: {
+                    number: "",
+                    name: "",
+                    banks: [
+                        new Bank("img/banks/alpha.png", [521178, 548673, 548601, 415428, 676371, 477964, 479004]),
+                        new Bank("img/banks/vtb.png", [427229, 527883, 447520]),
+                        new Bank("img/banks/gazprombank.png", [548999, 526483]),
+                        new Bank("img/banks/mts-bank.png", [533736, 540616]),
+                        new Bank("img/banks/otkrytie.png", [434146, 405870, 544573, 532301]),
+                        new Bank("img/banks/rosbank.png", [440503, 554761]),
+                        new Bank("img/banks/russian_standart.png", [513691, 510047]),
+                        new Bank("img/banks/raiffaizen.png", [462730, 462729]),
+                        new Bank("img/banks/sberbank.png", [427683, 427901, 427644, 427601, 427901, 427631, 427638, 546938]),
+                        new Bank("img/banks/tinkoff.png", [521324, 437773])
+                    ]
+                },
+                computed: {
+                    paySystem() {
+
+                        let number = this.number;
+
+                        if (number.length > 0) {
+                            
+                            let pattern = "img/systems/";
+
+                            switch (number[0]) {
+
+                                case '2':
+                                    return pattern + "mir.png";
+                                    break;
+                                case '3':
+                                    return pattern + "american-exp.png";
+                                    break;
+                                case '4':
+                                    return pattern + "visa.png";
+                                case '5':
+                                    return pattern + "mastercard.png";
+                                    break;
+                                case '6':
+                                    return pattern + "maestro.png";
+                                    break;
+                                default:
+                                    return "";
+                                    break;
+
+                            }
+
+                        }
+
+                    },
+                    validStatus() {
+
+                        if (this.number.length == 16) {
+                            
+                            let sum = 0;
+
+                            for (let num in this.number) {
+
+                                let digit = parseInt(this.number[num]);
+
+                                if ((16  - num) % 2 == 1) {
+
+                                    digit *= 2;
+
+                                    if (digit > 9)
+                                        digit -= 9;
+
+                                }
+
+                                sum += digit;
+
+                            }
+
+                            if (sum % 10 == 0)
+                                return true;
+                            else
+                                return false;
+
+                        } else
+                            return false;
+
+                    },
+                    bank() {
+
+                        let number = this.number;
+
+                        if (number.length >= 6) {
+
+                            let bin = (number + "").substr(0, 6);
+
+                            for (let bankIndex in this.banks) {
+
+                                for (let binind in this.banks[bankIndex].bins) {
+
+                                    if (parseInt(bin) == this.banks[bankIndex].bins[binind])
+                                        return this.banks[bankIndex].url;   
+
+                                }
+
+                            } 
+
+                        }
+
+                    },
+                    validName() {
+
+                        let validCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+                        let name = this.name;
+                        let countSpaces = 0;
+                        let errCharacters = false;
+
+                        for (let character in name) {
+
+                            if (validCharacters.indexOf(name[character]) == -1)
+                                errCharacters = true;
+                            if (name[character] == ' ')
+                                countSpaces += 1;
+
+                        }
+
+                        if (countSpaces == 1 && !errCharacters)
+                            return true;
+                        else
+                            return false;
+
+                    }
+                }
+
+            });
+        
+        </script>
+
+    </body>
+
+</html>
